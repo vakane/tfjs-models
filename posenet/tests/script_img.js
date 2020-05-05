@@ -1,4 +1,4 @@
-import {drawPose} from './drawing.js'
+import {drawPose, findFloor, armLine} from './drawing.js'
 import {LoadModel} from './model.js'
 
 //const webcamElement = document.getElementById('webcam');
@@ -14,7 +14,7 @@ async function run(architecture = 'MobileNet'){
     net = await LoadModel(architecture)
 
     const img = new Image()
-    img.src = './img/IMG_3783.png'
+    img.src = './img/img1.jpg'
 
     img.onload = function() {
         const ctx = document.getElementById('canvas').getContext('2d');
@@ -29,6 +29,8 @@ async function run(architecture = 'MobileNet'){
     console.log(pose)
     //plot points on canvas
     drawPose(pose)
+    findFloor(pose)
+    armLine(pose)
 }
 
-run();
+run('ResNet');

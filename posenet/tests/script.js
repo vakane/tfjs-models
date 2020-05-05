@@ -2,7 +2,7 @@ import {drawPose, findFloor} from './drawing.js'
 import {LoadModel} from './model.js'
 import {loadVideo} from './video.js'
 
-const videowidth = 480;
+const videowidth = 640;
 const videoheight = 640;
 const fps = 25;
 
@@ -24,7 +24,6 @@ async function run(architecture = 'MobileNet'){
 
     let video;
     video = await loadVideo(videowidth, videoheight)
-
 
     while(true){
         if (video.readyState === video.HAVE_ENOUGH_DATA){
@@ -48,4 +47,5 @@ async function run(architecture = 'MobileNet'){
  
 }
 
+//run('MobileNet');
 run('ResNet');

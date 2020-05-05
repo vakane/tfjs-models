@@ -83,7 +83,30 @@ export function findFloor(pose){
         //y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)
 
         const point0 = {'position': {'x': 0, 'y': y1 + (y2 - y1) / (x2 - x1) * ( - x1)}, 'score': 1}
-        const point1 = {'position': {'x': 480, 'y': y1 + (y2 - y1) / (x2 - x1) * (480 - x1)}, 'score': 1}
+        const point1 = {'position': {'x': 640, 'y': y1 + (y2 - y1) / (x2 - x1) * (640 - x1)}, 'score': 1}
+
+        drawLines(point0, point1, "#00FFFF", false)
+    }
+}
+
+export function armLine(pose){
+    const points = pose.keypoints
+    //if ankles are on the image
+    if ((points[15].score > threshold) && (points[16].score > threshold)){
+        const x1 = points[15].position.x
+        const y1 = points[15].position.y
+
+        const x2 = points[16].position.x
+        const y2 = points[16].position.y
+
+        //mid collarbone
+        const x0 = (points[5].position.x + points[6].position.x) / 2
+        const y0 = (points[5].position.y + points[6].position.y) / 2
+
+        //y = y0 + (y2 - y1) / (x2 - x1) * (x - x0)
+
+        const point0 = {'position': {'x': 0, 'y': y0 + (y2 - y1) / (x2 - x1) * ( - x0)}, 'score': 1}
+        const point1 = {'position': {'x': 640, 'y': y0 + (y2 - y1) / (x2 - x1) * (640 - x0)}, 'score': 1}
 
         drawLines(point0, point1, "#00FFFF", false)
     }
