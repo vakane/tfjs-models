@@ -91,23 +91,107 @@ export function findFloor(pose){
 
 export function armLine(pose){
     const points = pose.keypoints
-    //if ankles are on the image
-    if ((points[15].score > threshold) && (points[16].score > threshold)){
-        const x1 = points[15].position.x
-        const y1 = points[15].position.y
+    //if ankles and shoulders are on the image
+    if ((points[15].score > threshold) 
+        && (points[16].score > threshold)
+        && (points[5].score > threshold)
+        && (points[6].score > threshold)
+        ){
+            const x1 = points[15].position.x
+            const y1 = points[15].position.y
 
-        const x2 = points[16].position.x
-        const y2 = points[16].position.y
+            const x2 = points[16].position.x
+            const y2 = points[16].position.y
 
-        //mid collarbone
-        const x0 = (points[5].position.x + points[6].position.x) / 2
-        const y0 = (points[5].position.y + points[6].position.y) / 2
+            //mid collarbone
+            const x0 = (points[5].position.x + points[6].position.x) / 2
+            const y0 = (points[5].position.y + points[6].position.y) / 2
 
-        //y = y0 + (y2 - y1) / (x2 - x1) * (x - x0)
+            //y = y0 + (y2 - y1) / (x2 - x1) * (x - x0)
 
-        const point0 = {'position': {'x': 0, 'y': y0 + (y2 - y1) / (x2 - x1) * ( - x0)}, 'score': 1}
-        const point1 = {'position': {'x': 640, 'y': y0 + (y2 - y1) / (x2 - x1) * (640 - x0)}, 'score': 1}
+            const point0 = {'position': {'x': 0, 'y': y0 + (y2 - y1) / (x2 - x1) * ( - x0)}, 'score': 1}
+            const point1 = {'position': {'x': 640, 'y': y0 + (y2 - y1) / (x2 - x1) * (640 - x0)}, 'score': 1}
 
-        drawLines(point0, point1, "#00FFFF", false)
+            drawLines(point0, point1, "#00FFFF", false)
+    }   
+}
+
+export function dominantLeg(pose){
+    const points = pose.keypoints
+    //if hips, knees and ankles are on the image
+    if ((points[11].score > threshold) 
+        && (points[12].score > threshold)
+        && (points[13].score > threshold)
+        && (points[14].score > threshold)
+        && (points[15].score > threshold)
+        && (points[16].score > threshold)
+        ){
+        
+            const x1 = points[15].position.x
+            const y1 = points[15].position.y
+    
+            const x2 = points[16].position.x
+            const y2 = points[16].position.y
+
+            //mid pelvis
+            const x0 = (points[11].position.x + points[12].position.x) / 2
+            const y0 = (points[11].position.y + points[12].position.y) / 2
+
+            //knee coordinat if parallel to the floor
+            const y3 = points[13].position.y
+            const y4 = points[14].position.y
+
+            const y3_hat = y0 + (y2 - y1) / (x2 - x1) * (x1 - x0)
+            const y4_hat = y0 + (y2 - y1) / (x2 - x1) * (x2 - x0)
+
+            const point0 = {'position': {'x': x0, 'y': y0 }, 'score': 1};
+            let point1;
+            
+            if (Math.abs(y3 - y3_hat) < Math.abs(y4 - y4_hat)){
+                point1 = {'position': {'x': x1, 'y': y3_hat}, 'score': 1}
+
+                //intercept with floor line
+                //y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)
+                let point2;
+                if (y1 == y2){
+                    point2 = {'position': {'x': x1, 'y': y1}, 'score': 1}
+                }
+                else{
+                    //y = y3_hat + 1/k (x - x1)
+                    //y = y1 + k * (x - x1)
+
+                    //x = (y3_hat - y1) / (k + 1/k) + x1 
+                    const k = (y2 - y1) / (x2 - x1)
+                    const x = (y3_hat - y1) / (k + 1/k) + x1 
+                    const y = y1 + k * (x - x1)
+                    point2 = {'position': {'x': x, 'y': y}, 'score': 1}
+                }
+                drawLines(point1, point2, "#00FFFF")
+
+            }
+            else{
+                point1 = {'position': {'x': x2, 'y': y4_hat}, 'score': 1}
+
+                //intercept with floor line
+                //y = y1 + (y2 - y1) / (x2 - x1) * (x - x1)
+                let point2;
+                if (y1 == y2){
+                    point2 = {'position': {'x': x2, 'y': y2}, 'score': 1}
+                }
+                else{
+                    //y = y3_hat + 1/k (x - x1)
+                    //y = y1 + k * (x - x1)
+
+                    //x = (y3_hat - y1) / (k + 1/k) + x1 
+                    const k = (y2 - y1) / (x2 - x1)
+                    const x = (y4_hat - y2) / (k + 1/k) + x2 
+                    const y = y2 + k * (x - x2)
+                    point2 = {'position': {'x': x, 'y': y}, 'score': 1}
+                }
+                drawLines(point1, point2, "#00FFFF")
+            }
+
+            drawLines(point0, point1, "#00FFFF", false)
+
     }
 }
