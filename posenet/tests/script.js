@@ -1,4 +1,4 @@
-import {drawPose} from './drawing.js'
+import {drawPose, findFloor} from './drawing.js'
 import {LoadModel} from './model.js'
 import {loadVideo} from './video.js'
 
@@ -37,6 +37,8 @@ async function run(architecture = 'MobileNet'){
 
             //plot points on canvas
             drawPose(pose)
+
+            findFloor(pose)
 
             await sleep(1/fps);
 
